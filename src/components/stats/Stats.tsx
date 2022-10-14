@@ -84,7 +84,7 @@ export const Stats = () => {
                 </div>
 
                 <CopyToClipboard text={ASSET_LAKE.address}>
-                    <GradientBorder className="min-w-[14rem] h-[2.5rem] p-px flex justify-center items-center rounded-[32px]">
+                    <GradientBorder className="min-w-[14rem] h-[2.5rem] p-px flex justify-center items-center rounded-[32px] cursor-pointer">
                         <div className="w-full h-full flex justify-center items-center rounded-[32px] bg-black-500 px-4">
                             <span className="color-gradient-light tracking-wider text-xs font-medium font-kanit-medium">
                                 COPY CONTRACT ADDRESS
