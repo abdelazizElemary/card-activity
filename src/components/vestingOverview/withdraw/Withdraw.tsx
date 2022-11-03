@@ -10,7 +10,7 @@ import { WalletConnectContext } from '../../../context';
 import { colors } from '../../../constants/colors';
 import { formatValue } from '../../../utils/formatValue';
 import keyIcon from './../../../assets/icons/key-icon.svg';
-import logo from '../../../assets/icons/logo.svg';
+import logo from '../../../assets/icons/lake-logo.svg';
 import styled from 'styled-components';
 import { useTokenClaim } from '../../../hooks/use-token-claim';
 
