@@ -1,3 +1,4 @@
+import { Footer } from '../components/footer/Footer';
 import { Page } from '../components/page/Page';
 import { Stats } from '../components/stats/Stats';
 import { VestingOverview } from '../components/vestingOverview/VestingOverview';
@@ -15,8 +16,11 @@ export const Main = () => (
             <div className="w-full h-[82vh] py-6">
                 <Widgets />
             </div>
-            <div className="w-full h-[80vh] pt-6 pb-14">
+            <div className="w-full h-[80vh] py-6">
                 <VestingOverview />
+            </div>
+            <div className="w-full h-[35vh] pt-6 pb-14">
+                <Footer />
             </div>
         </div>
     </Page>

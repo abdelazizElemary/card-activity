@@ -1,4 +1,3 @@
-import { Footer } from '../footer/Footer';
 import { Navigation } from '../navigation/Navigation';
 import { ReactNode } from 'react';
 import styled from 'styled-components';
@@ -11,7 +10,6 @@ export const Page = ({ children }: Props) => (
     <PageContainer>
         <Navigation />
         {children}
-        <Footer />
     </PageContainer>
 );
 
