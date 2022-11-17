@@ -1,73 +1,83 @@
 import '../../../../assets/rc-slider.css';
 
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
-import { ASSET_LP_TOKEN } from '../../../../constants/assets';
 import { Button } from '../../../button/Button';
 import { ButtonWithSpinner } from '../../../button/ButtonWithSpinner';
+import { ClipLoader } from 'react-spinners';
+import { IPositionDetails } from '../../../../interfaces/positionDetails.interface';
+import { Position } from '../Position';
+import { PositionsList } from '../PositionsList';
 import ReactModal from 'react-modal';
-import Slider from 'rc-slider';
 import { WalletConnectContext } from '../../../../context';
 import cancelIcon from '../../../../assets/icons/cancel-icon.svg';
-import { formatValue } from '../../../../utils/formatValue';
-import { useUnstakeLPTokens } from '../../../../hooks/use-unstake-lp-tokens';
+import { colors } from '../../../../constants/colors';
+import { customModalStyle } from '../../../../constants/modal';
+import { useUnstakePosition } from '../../../../hooks/use-unstake-position';
 
 type Props = {
     isOpen: boolean;
-    stakedBalance: number;
-    refreshStakingData: () => void;
+    isLoading: boolean;
+    stakedPositions: IPositionDetails[];
+    refreshPositions: () => void;
+    refreshStakedPositions: () => void;
     closeModal: () => void;
-};
-
-const customStyles = {
-    overlay: {
-        background: 'rgba(0, 0, 0, 0.8)',
-    },
-    content: {
-        background: 'transparent',
-        border: 'none',
-        top: '50%',
-        left: '50%',
-        right: 'auto',
-        bottom: 'auto',
-        marginRight: '-50%',
-        transform: 'translate(-50%, -50%)',
-    },
 };
 
 ReactModal.setAppElement('#root');
 
 export const UnstakingModal = ({
     isOpen,
-    stakedBalance,
-    refreshStakingData,
+    isLoading,
+    stakedPositions,
+    refreshPositions,
+    refreshStakedPositions,
     closeModal,
 }: Props) => {
     const { account, library } = useContext(WalletConnectContext);
-    const [inputValue, setInputValue] = useState(0);
+    const [step, setStep] = useState(1);
+    const [selectedPosition, setSelectedPosition] = useState<
+        IPositionDetails | undefined
+    >(undefined);
     const [isUnstaking, setIsUnstaking] = useState(false);
+
+    useEffect(() => {
+        setStep(!!selectedPosition ? 2 : 1);
+    }, [selectedPosition]);
+
+    useEffect(() => {
+        setSelectedPosition(undefined);
+    }, [stakedPositions]);
 
     const onUnstakeClick = async () => {
         if (library && account) {
             setIsUnstaking(true);
-            await useUnstakeLPTokens(
+            await useUnstakePosition(
                 library,
                 account,
-                (inputValue * stakedBalance) / 100,
+                selectedPosition!.positionId,
             );
             setIsUnstaking(false);
-            refreshStakingData();
+            refreshPositions();
+            refreshStakedPositions();
+            setStep(1);
         }
+    };
+
+    const onCloseClick = () => {
+        setSelectedPosition(undefined);
+        setStep(1);
+        closeModal();
     };
 
     return (
         <ReactModal
             isOpen={isOpen}
-            style={customStyles}
+            style={customModalStyle}
             contentLabel="Staking Modal"
             shouldCloseOnOverlayClick={true}
             shouldCloseOnEsc={true}
-            onRequestClose={closeModal}
+            onRequestClose={onCloseClick}
         >
             <div className="flex flex-col">
                 <div className="flex justify-end items-center mb-6">
@@ -78,70 +88,63 @@ export const UnstakingModal = ({
                         <img
                             className="cursor-pointer"
                             src={cancelIcon}
-                            onClick={closeModal}
+                            onClick={onCloseClick}
                             alt="copy"
                         ></img>
                     </div>
                 </div>
                 <div className="flex flex-col rounded-[32px] border border-gray-500 p-8 bg-black-800">
-                    <div className="font-kanit-medium color-gray-gradient text-shadow text-xl tracking-[.12em] text-center mb-4">
-                        UNSTAKE
-                    </div>
-                    <div className="flex flex-col min-w-[20vw]">
-                        <div className="w-full flex mt-4 mb-10">
-                            <Slider
-                                onChange={(value) => {
-                                    setInputValue(value as number);
-                                }}
-                                min={0}
-                                max={100}
-                                marks={{
-                                    0: '0%',
-                                    25: '25%',
-                                    50: '50%',
-                                    75: '75%',
-                                    100: '100%',
-                                }}
-                                defaultValue={inputValue}
-                                step={0.1}
-                                handleRender={(renderProps) => (
-                                    <div {...renderProps.props}>
-                                        <span className="font-kanit-medium whitespace-nowrap text-xs tracking-[.12em] absolute top-[-1.5rem] left-[-0.75rem]">
-                                            {(inputValue * stakedBalance) / 100}{' '}
-                                            {ASSET_LP_TOKEN.symbol}
-                                        </span>
-                                    </div>
-                                )}
+                    {isLoading ? (
+                        <div className="flex min-w-[20vw] h-[20rem] justify-center items-center">
+                            <ClipLoader
+                                className="!w-[5rem] !h-[5rem]"
+                                color={colors.gray['300']}
+                                loading
                             />
                         </div>
-                        <span className="font-kanit-medium whitespace-nowrap text-xs tracking-[.12em] text-end">
-                            STAKED:{' '}
-                            {formatValue(
-                                stakedBalance,
-                                ASSET_LP_TOKEN.symbol,
-                                2,
+                    ) : (
+                        <>
+                            <div className="font-kanit-medium color-gray-gradient text-shadow text-xl tracking-[.12em] text-center mb-4">
+                                {step === 1 ? 'CHOOSE POSITION' : 'UNSTAKE'}
+                            </div>
+                            <div className="flex flex-col min-w-[20vw]">
+                                {step === 1 || !selectedPosition ? (
+                                    <PositionsList
+                                        positions={stakedPositions}
+                                        onClick={(position) =>
+                                            setSelectedPosition(position)
+                                        }
+                                    />
+                                ) : (
+                                    <div className="mt-8">
+                                        <Position
+                                            position={selectedPosition}
+                                            disabled={true}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                            {step === 2 && (
+                                <div className="flex flex-col items-center">
+                                    <div className="mt-8">
+                                        {isUnstaking ? (
+                                            <ButtonWithSpinner
+                                                size="medium"
+                                                disabled={true}
+                                            />
+                                        ) : (
+                                            <Button
+                                                size="medium"
+                                                disabled={false}
+                                                text="UNSTAKE"
+                                                onClick={onUnstakeClick}
+                                            />
+                                        )}
+                                    </div>
+                                </div>
                             )}
-                        </span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                        <div className="mt-8">
-                            {isUnstaking ? (
-                                <ButtonWithSpinner
-                                    size="medium"
-                                    disabled={true}
-                                />
-                            ) : (
-                                <Button
-                                    size="medium"
-                                    disabled={
-                                        inputValue === 0 || stakedBalance === 0
-                                    }
-                                    text="UNSTAKE"
-                                    onClick={onUnstakeClick}
-                                />
-                            )}
-                        </div>
-                    </div>
+                        </>
+                    )}
                 </div>
             </div>
         </ReactModal>

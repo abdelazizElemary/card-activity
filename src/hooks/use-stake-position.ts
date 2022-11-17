@@ -3,10 +3,10 @@ import { JsonRpcProvider } from '@ethersproject/providers';
 import { stakingAbi } from '../abis/staking';
 import { useConfig } from './use-config';
 
-export const useStakeLPTokens = async (
+export const useStakePosition = async (
     provider: JsonRpcProvider,
     account: string,
-    amount: number,
+    positionId: number,
 ): Promise<void> => {
     try {
         const { stakingAddress } = useConfig();
@@ -15,10 +15,10 @@ export const useStakeLPTokens = async (
             stakingAbi,
             provider.getSigner(account),
         );
-        const tx = await stakingContract.stake(amount);
+        const tx = await stakingContract.stake(positionId);
         return await tx.wait();
     } catch (e) {
-        console.error('Failed to stake LP tokens', e);
+        console.error('Failed to stake position', e);
     }
     return;
 };

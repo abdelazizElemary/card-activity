@@ -15,9 +15,3 @@ export const ASSET_USDT = {
     symbol: 'USDT',
     decimals: 6,
 };
-
-export const ASSET_LP_TOKEN = {
-    name: 'LP TOKEN',
-    symbol: 'LPT',
-    decimals: 18,
-};

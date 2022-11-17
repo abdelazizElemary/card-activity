@@ -1,75 +1,20 @@
 import { ASSET_LAKE, ASSET_USDT } from '../constants/assets';
-import { BigNumber, Contract } from 'ethers';
-import { CurrencyAmount, Percent, Token } from '@uniswap/sdk-core';
-import {
-    NonfungiblePositionManager,
-    Pool,
-    Position,
-    nearestUsableTick,
-} from '@uniswap/v3-sdk';
+import { CurrencyAmount, Percent } from '@uniswap/sdk-core';
+import { MAX_TICK, PROVIDE_LIQUIDITY_DEADLINE } from '../constants/commons';
+import { NonfungiblePositionManager, Position } from '@uniswap/v3-sdk';
 
 import { IPositionDetails } from '../interfaces/positionDetails.interface';
 import { JsonRpcProvider } from '@ethersproject/providers';
-import { PROVIDE_LIQUIDITY_DEADLINE } from '../constants/commons';
-import { uniswapV3PoolAbi } from '../abis/uniswapV3Pool';
 import { useConfig } from './use-config';
-
-interface Immutables {
-    fee: number;
-    tickSpacing: number;
-}
-
-interface State {
-    liquidity: BigNumber;
-    sqrtPriceX96: BigNumber;
-    tick: number;
-}
+import { useLakeToken } from './use-lake-token';
+import { useUniswapPool } from './use-uniswap-pool';
+import { useUsdtToken } from './use-usdt-token';
 
 export const useUniswap = (provider: JsonRpcProvider) => {
-    const {
-        chainId,
-        lakeAddress,
-        usdtAddress,
-        usdtLakePoolAddress,
-        nonfungiblePositionManagerAddress,
-    } = useConfig();
-
-    const poolContract = new Contract(
-        usdtLakePoolAddress,
-        uniswapV3PoolAbi,
-        provider,
-    );
-
-    const usdt = new Token(
-        chainId,
-        usdtAddress,
-        ASSET_USDT.decimals,
-        ASSET_USDT.symbol,
-        ASSET_USDT.name,
-    );
-
-    const lake = new Token(
-        chainId,
-        lakeAddress,
-        ASSET_LAKE.decimals,
-        ASSET_LAKE.symbol,
-        ASSET_LAKE.name,
-    );
+    const { nonfungiblePositionManagerAddress } = useConfig();
 
     const getLakePrice = async (): Promise<number> => {
-        const [immutables, state] = await Promise.all([
-            getPoolImmutables(poolContract),
-            getPoolState(poolContract),
-        ]);
-
-        const pool = new Pool(
-            usdt,
-            lake,
-            immutables.fee,
-            state.sqrtPriceX96.toString(),
-            state.liquidity.toString(),
-            state.tick,
-        );
+        const pool = await useUniswapPool(provider);
         return Number(pool.token1Price.toSignificant());
     };
 
@@ -77,33 +22,20 @@ export const useUniswap = (provider: JsonRpcProvider) => {
         usdtAmount: number,
         lakeAmount: number,
         account: string,
-        tokenId?: number,
+        selectedPosition?: IPositionDetails,
     ): Promise<void> => {
         try {
-            const [immutables, state] = await Promise.all([
-                getPoolImmutables(poolContract),
-                getPoolState(poolContract),
-            ]);
-
-            const pool = new Pool(
-                usdt,
-                lake,
-                immutables.fee,
-                state.sqrtPriceX96.toString(),
-                state.liquidity.toString(),
-                state.tick,
-            );
-
+            const pool = await useUniswapPool(provider);
             const position = Position.fromAmounts({
                 pool,
-                amount0: usdtAmount * 10 ** ASSET_USDT.decimals,
-                amount1: lakeAmount * 10 ** ASSET_LAKE.decimals,
-                tickLower:
-                    nearestUsableTick(state.tick, immutables.tickSpacing) -
-                    2 * immutables.tickSpacing,
-                tickUpper:
-                    nearestUsableTick(state.tick, immutables.tickSpacing) +
-                    2 * immutables.tickSpacing,
+                amount0: Math.round(usdtAmount * 10 ** ASSET_USDT.decimals),
+                amount1: Math.round(lakeAmount * 10 ** ASSET_LAKE.decimals),
+                tickLower: selectedPosition
+                    ? selectedPosition.tickLower
+                    : -MAX_TICK,
+                tickUpper: selectedPosition
+                    ? selectedPosition.tickUpper
+                    : MAX_TICK,
                 useFullPrecision: true,
             });
 
@@ -116,9 +48,9 @@ export const useUniswap = (provider: JsonRpcProvider) => {
 
             const slippageTolerance = new Percent(50, 10000);
 
-            const { calldata, value } = tokenId
+            const { calldata, value } = selectedPosition
                 ? NonfungiblePositionManager.addCallParameters(position, {
-                      tokenId,
+                      tokenId: selectedPosition.positionId,
                       slippageTolerance,
                       deadline,
                   })
@@ -148,26 +80,16 @@ export const useUniswap = (provider: JsonRpcProvider) => {
 
     const removeLiquidity = async (
         account: string,
-        tokenId: number,
         positionDetails: IPositionDetails,
+        percentage: number,
     ): Promise<void> => {
         try {
-            const [immutables, state] = await Promise.all([
-                getPoolImmutables(poolContract),
-                getPoolState(poolContract),
-            ]);
-
-            const pool = new Pool(
-                usdt,
-                lake,
-                immutables.fee,
-                state.sqrtPriceX96.toString(),
-                state.liquidity.toString(),
-                state.tick,
-            );
+            const pool = await useUniswapPool(provider);
             const position = new Position({
                 pool,
-                ...positionDetails,
+                liquidity: positionDetails.liquidity,
+                tickLower: positionDetails.tickLower,
+                tickUpper: positionDetails.tickUpper,
             });
 
             const deadline = (
@@ -179,17 +101,17 @@ export const useUniswap = (provider: JsonRpcProvider) => {
 
             const { calldata, value } =
                 NonfungiblePositionManager.removeCallParameters(position, {
-                    tokenId,
-                    liquidityPercentage: new Percent(1),
+                    tokenId: positionDetails.positionId,
+                    liquidityPercentage: new Percent(percentage, 100),
                     slippageTolerance: new Percent(1),
                     deadline,
                     collectOptions: {
                         expectedCurrencyOwed0: CurrencyAmount.fromRawAmount(
-                            usdt,
+                            useUsdtToken(),
                             0,
                         ),
                         expectedCurrencyOwed1: CurrencyAmount.fromRawAmount(
-                            lake,
+                            useLakeToken(),
                             0,
                         ),
                         recipient: account,
@@ -212,28 +134,6 @@ export const useUniswap = (provider: JsonRpcProvider) => {
         } catch (e) {
             console.error('Failed to remove liquidity', e);
         }
-    };
-
-    const getPoolImmutables = async (
-        poolContract: Contract,
-    ): Promise<Immutables> => {
-        return {
-            fee: await poolContract.fee(),
-            tickSpacing: await poolContract.tickSpacing(),
-        };
-    };
-
-    const getPoolState = async (poolContract: Contract): Promise<State> => {
-        const [liquidity, slot] = await Promise.all([
-            poolContract.liquidity(),
-            poolContract.slot0(),
-        ]);
-
-        return {
-            liquidity,
-            sqrtPriceX96: slot[0],
-            tick: slot[1],
-        };
     };
 
     return {

@@ -1,9 +1,7 @@
-import { ASSET_LP_TOKEN, ASSET_USDT } from '../../../constants/assets';
-
+import { ASSET_USDT } from '../../../constants/assets';
 import { colors } from '../../../constants/colors';
 import { formatValue } from '../../../utils/formatValue';
 import lakeLogo from './../../../assets/icons/lake-logo.svg';
-import lpTokenLogo from './../../../assets/icons/lp-token-logo.svg';
 import styled from 'styled-components';
 import usdtLogo from './../../../assets/icons/usdt-logo.svg';
 
@@ -34,17 +32,9 @@ export const TokenInput = ({
                     {tokenSymbol}
                 </span>
                 <img
-                    className={`w-[${
-                        tokenSymbol === ASSET_LP_TOKEN.symbol
-                            ? '3rem'
-                            : '2.5rem'
-                    }] h-[2.5rem]`}
+                    className="w-[2.5rem] h-[2.5rem]"
                     src={
-                        tokenSymbol === ASSET_USDT.symbol
-                            ? usdtLogo
-                            : tokenSymbol === ASSET_LP_TOKEN.symbol
-                            ? lpTokenLogo
-                            : lakeLogo
+                        tokenSymbol === ASSET_USDT.symbol ? usdtLogo : lakeLogo
                     }
                     alt="chart"
                 ></img>

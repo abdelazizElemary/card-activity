@@ -1,6 +1,6 @@
-import { ASSET_LAKE, ASSET_LP_TOKEN } from '../../constants/assets';
 import { useContext, useEffect, useState } from 'react';
 
+import { ASSET_LAKE } from '../../constants/assets';
 import { AccountMetric } from './AccountMetric';
 import { GradientButtonWithIcon } from '../button/gradient/GradientButtonWithIcon';
 import { IBeneficiaryOverview } from '../../interfaces/beneficiaryOverview.interface';
@@ -21,6 +21,7 @@ import styled from 'styled-components';
 import uncheckedIcon from '../../assets/icons/unchecked-icon.svg';
 import { useBeneficiaryOverview } from '../../hooks/use-beneficiary-overview';
 import { useConfig } from '../../hooks/use-config';
+import { usePositionsCount } from '../../hooks/use-positions-count';
 import { useTgeTimestamp } from '../../hooks/use-tge-timestamp';
 import { useTokenBalance } from '@usedapp/core';
 import { useUniswap } from '../../hooks/use-uniswap';
@@ -28,21 +29,20 @@ import { useUniswap } from '../../hooks/use-uniswap';
 export const AccountOverview = () => {
     const { account, library, activateProvider } =
         useContext(WalletConnectContext);
-    const { lakeAddress, lpTokenAddress } = useConfig();
+    const { lakeAddress } = useConfig();
     const [isVerified, setIsVerified] = useState(false);
     const [lakeBalance, setLakeBalance] = useState(0);
-    const [lpTokenBalance, setLpTokenBalance] = useState(0);
     const [lakePrice, setLakePrice] = useState(0);
     const [totalLocked, setTotalLocked] = useState(0);
     const [totalUnlocked, setTotalUnlocked] = useState(0);
     const [totalAllocated, setTotalAllocated] = useState(0);
+    const [positionsCount, setPositionsCount] = useState(0);
     const [vestingSchedules, setVestingSchedules] = useState<
         IVestingSchedule[]
     >([]);
     const { getBeneficiaryOverview } = useBeneficiaryOverview();
     const { getTgeTimestamp } = useTgeTimestamp();
     const lakeBalanceAsBigNumber = useTokenBalance(lakeAddress, account);
-    const lpTokenBalanceAsBigNumber = useTokenBalance(lpTokenAddress, account);
 
     useEffect(() => {
         const fetchData = async (library: JsonRpcProvider) => {
@@ -59,8 +59,22 @@ export const AccountOverview = () => {
     }, [library]);
 
     useEffect(() => {
-        setBalances();
-    }, [lakeBalanceAsBigNumber, lpTokenBalanceAsBigNumber]);
+        setLakeBalance(
+            lakeBalanceAsBigNumber
+                ? parseBigNumber(lakeBalanceAsBigNumber, ASSET_LAKE.decimals)
+                : 0,
+        );
+    }, [lakeBalanceAsBigNumber]);
+
+    useEffect(() => {
+        const fetchData = async (library: JsonRpcProvider, account: string) => {
+            setPositionsCount(await usePositionsCount(library, account));
+        };
+
+        if (library && account) {
+            fetchData(library, account).catch(console.error);
+        }
+    }, [library, account]);
 
     useEffect(() => {
         const fetchData = async (library: JsonRpcProvider, account: string) => {
@@ -96,22 +110,6 @@ export const AccountOverview = () => {
         setTotalUnlocked(unlocked);
         setTotalAllocated(allocated);
     }, [vestingSchedules]);
-
-    const setBalances = () => {
-        setLakeBalance(
-            lakeBalanceAsBigNumber
-                ? parseBigNumber(lakeBalanceAsBigNumber, ASSET_LAKE.decimals)
-                : 0,
-        );
-        setLpTokenBalance(
-            lpTokenBalanceAsBigNumber
-                ? parseBigNumber(
-                      lpTokenBalanceAsBigNumber,
-                      ASSET_LP_TOKEN.decimals,
-                  )
-                : 0,
-        );
-    };
 
     const activate = async () => {
         await activateProvider();
@@ -175,7 +173,7 @@ export const AccountOverview = () => {
                             }
                         />
                         <AccountMetric
-                            title={'LP TOKENS AVAILABLE'}
+                            title={'LP POSITIONS'}
                             icon={
                                 <img
                                     className="w-[3.5rem] h-[3.5rem]"
@@ -183,7 +181,7 @@ export const AccountOverview = () => {
                                     alt="icon"
                                 ></img>
                             }
-                            value={lpTokenBalance}
+                            value={positionsCount}
                         />
                     </div>
                 </StatContainer>

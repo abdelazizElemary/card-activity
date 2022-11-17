@@ -3,10 +3,10 @@ import { JsonRpcProvider } from '@ethersproject/providers';
 import { stakingAbi } from '../abis/staking';
 import { useConfig } from './use-config';
 
-export const useUnstakeLPTokens = async (
+export const useUnstakePosition = async (
     provider: JsonRpcProvider,
     account: string,
-    amount: number,
+    positionId: number,
 ): Promise<void> => {
     try {
         const { stakingAddress } = useConfig();
@@ -15,10 +15,10 @@ export const useUnstakeLPTokens = async (
             stakingAbi,
             provider.getSigner(account),
         );
-        const tx = await stakingContract.withdraw(amount);
+        const tx = await stakingContract.withdraw(positionId);
         return await tx.wait();
     } catch (e) {
-        console.error('Failed to unstake LP tokens', e);
+        console.error('Failed to unstake position', e);
     }
     return;
 };

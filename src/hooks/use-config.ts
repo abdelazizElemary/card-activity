@@ -40,7 +40,6 @@ export const useConfig = () => {
             process.env.REACT_APP_SWAP_CONVENIENCE_FEE_RECIPIENT || '',
         nonfungiblePositionManagerAddress:
             process.env.REACT_APP_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES || '',
-        lpTokenAddress: process.env.REACT_APP_LP_TOKEN_ADDRESS || '',
         stakingAddress: process.env.REACT_APP_STAKING_ADDRESS || '',
         getDappConfig,
     };
