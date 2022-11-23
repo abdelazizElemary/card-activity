@@ -6,6 +6,9 @@ export const getDurationProgress = (
     terms: number,
     tgeTimestamp: number,
 ): number => {
+    if (isVestingScheduleUnlocked(cliff, duration, terms, tgeTimestamp)) {
+        return 100;
+    }
     const durationProgress =
         ((new Date().getTime() / 1000 - tgeTimestamp) * 100) /
         (cliff + duration * terms);
@@ -18,15 +21,15 @@ export const getDurationLeft = (
     terms: number,
     tgeTimestamp: number,
 ): number => {
-    return (
-        Math.floor(
-            (tgeTimestamp +
-                cliff +
-                duration * terms -
-                new Date().getTime() / 1000) /
-                SEC_PER_DAY,
-        ) + 1
-    );
+    return isVestingScheduleUnlocked(cliff, duration, terms, tgeTimestamp)
+        ? 0
+        : Math.floor(
+              (tgeTimestamp +
+                  cliff +
+                  duration * terms -
+                  new Date().getTime() / 1000) /
+                  SEC_PER_DAY,
+          ) + 1;
 };
 
 export const isVestingScheduleUnlocked = (
@@ -34,7 +37,7 @@ export const isVestingScheduleUnlocked = (
     duration: number,
     terms: number,
     tgeTimestamp: number,
-) => {
+): boolean => {
     return (
         tgeTimestamp + cliff + duration * terms < new Date().getTime() / 1000
     );

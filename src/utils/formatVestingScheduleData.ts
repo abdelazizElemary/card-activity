@@ -7,9 +7,8 @@ import {
 import { ASSET_LAKE } from '../constants/assets';
 import { IBeneficiaryOverview } from '../interfaces/beneficiaryOverview.interface';
 import { IVestingSchedule } from '../interfaces/vestingSchedule.interface';
-import { formatValue } from './formatValue';
-import { getTermsAsString } from './getTermsAsString';
 import { getUnlockedAmount } from './getUnlockedAmount';
+import { getVestingRateAsString } from './getVestingRateAsString';
 import { parseBigNumber } from './parseBigNumber';
 
 export const formatVestingScheduleData = (
@@ -25,16 +24,13 @@ export const formatVestingScheduleData = (
         ASSET_LAKE.decimals,
     );
     const vestingRate = allocatedAmount / duration;
-    const isUnlocked = isVestingScheduleUnlocked(
+    const unlockedAmount = getUnlockedAmount(
         cliff,
-        duration,
         terms,
+        duration,
+        vestingRate,
         tgeTimestamp,
     );
-    const unlockedAmount = isUnlocked
-        ? allocatedAmount
-        : getUnlockedAmount(cliff, terms, vestingRate, tgeTimestamp);
-
     const withdrawnAmount = parseBigNumber(
         beneficiaryOverview.withdrawnAmount,
         ASSET_LAKE.decimals,
@@ -45,18 +41,28 @@ export const formatVestingScheduleData = (
         terms,
         cliff,
         duration,
-        durationLeft: isUnlocked
-            ? 0
-            : getDurationLeft(cliff, duration, terms, tgeTimestamp),
-        durationProgress: isUnlocked
-            ? 100
-            : getDurationProgress(cliff, duration, terms, tgeTimestamp),
+        durationLeft: getDurationLeft(cliff, duration, terms, tgeTimestamp),
+        durationProgress: getDurationProgress(
+            cliff,
+            duration,
+            terms,
+            tgeTimestamp,
+        ),
         vestingRate,
-        vestingRateAsString: isUnlocked
-            ? 'FULLY VESTED'
-            : `${formatValue(vestingRate)} $LAKE / ${getTermsAsString(terms)}`,
+        vestingRateAsString: getVestingRateAsString(
+            cliff,
+            duration,
+            terms,
+            tgeTimestamp,
+            vestingRate,
+        ),
         unlockedAmount,
-        isUnlocked,
+        isUnlocked: isVestingScheduleUnlocked(
+            cliff,
+            duration,
+            terms,
+            tgeTimestamp,
+        ),
         allocatedAmount,
         withdrawnAmount,
         availableAmount: unlockedAmount - withdrawnAmount,
