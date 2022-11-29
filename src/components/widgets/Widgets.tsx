@@ -63,14 +63,14 @@ export const Widgets = () => {
                         <div key={index} className="flex flex-col w-[32%]">
                             {widget.isOpen ? (
                                 <GradientButton
-                                    size="huge"
+                                    size="big"
                                     disabled={false}
                                     text={widget.name}
                                     onClick={() => onWidgetClick(index)}
                                 ></GradientButton>
                             ) : (
                                 <Button
-                                    size="huge"
+                                    size="big"
                                     disabled={false}
                                     text={widget.name}
                                     onClick={() => onWidgetClick(index)}

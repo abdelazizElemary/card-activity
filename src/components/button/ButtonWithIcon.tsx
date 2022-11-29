@@ -26,8 +26,6 @@ export const ButtonWithIcon = ({
                         ? 'text-xs'
                         : size === 'medium'
                         ? 'text-base'
-                        : size === 'big'
-                        ? 'text-xl'
                         : 'text-2xl'
                 }`}
             >

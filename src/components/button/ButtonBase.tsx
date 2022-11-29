@@ -23,8 +23,6 @@ export const ButtonBase = ({ size, disabled, children, onClick }: Props) => (
                     ? 'min-w-[11rem] h-[2.5rem]'
                     : size === 'medium'
                     ? 'min-w-[13rem] h-[3rem]'
-                    : size === 'big'
-                    ? 'min-w-[16rem] h-[4rem]'
                     : 'min-w-[18rem] h-[5.5rem] !rounded-[80px]'
             } p-px flex justify-center items-center rounded-[32px]`}
         >
@@ -34,8 +32,6 @@ export const ButtonBase = ({ size, disabled, children, onClick }: Props) => (
                         ? 'px-2'
                         : size === 'medium'
                         ? 'px-4'
-                        : size === 'big'
-                        ? 'px-6'
                         : 'px-6 !rounded-[80px]'
                 }`}
             >

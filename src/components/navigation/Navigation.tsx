@@ -59,11 +59,11 @@ export const Navigation = () => {
     };
 
     return (
-        <nav className="relative flex flex-wrap items-center justify-between px-8 py-3 bg-black-500 border-b border-gray-700">
+        <nav className="relative flex flex-wrap items-center justify-between py-3">
             <div className="w-full flex flex-wrap items-center justify-between">
                 <div>
                     <img
-                        className="w-[22rem] pl-6"
+                        className="w-[18rem]"
                         src={horizontalLogo}
                         alt="logo"
                     ></img>
@@ -73,7 +73,7 @@ export const Navigation = () => {
                     {account ? (
                         <>
                             <Button
-                                size="big"
+                                size="medium"
                                 disabled={true}
                                 text={`${formatValue(
                                     lakeBalance,
@@ -89,7 +89,7 @@ export const Navigation = () => {
                             <div className="ml-4">
                                 <CopyToClipboard text={account}>
                                     <ButtonWithIcon
-                                        size="big"
+                                        size="medium"
                                         disabled={false}
                                         text={formatAddress(account)}
                                     >
@@ -120,7 +120,7 @@ export const Navigation = () => {
                         </>
                     ) : (
                         <GradientButtonWithIcon
-                            size="big"
+                            size="medium"
                             disabled={false}
                             text="CONNECT WALLET"
                             onClick={activate}

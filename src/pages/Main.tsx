@@ -7,8 +7,8 @@ import { Widgets } from '../components/widgets/Widgets';
 
 export const Main = () => (
     <Page>
-        <div className="w-full flex flex-col items-center justify-center px-28">
-            <div className="w-full h-[670px] flex justify-between pt-14 pb-6">
+        <div className="w-full flex flex-col items-center justify-center">
+            <div className="w-full h-[670px] flex justify-between py-6">
                 <div className="w-[66%]">
                     <AccountOverview />
                 </div>
