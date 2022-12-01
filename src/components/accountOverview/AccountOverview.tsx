@@ -36,15 +36,17 @@ export const AccountOverview = () => {
     const lakeBalanceAsBigNumber = useTokenBalance(lakeAddress, account);
 
     useEffect(() => {
-        const fetchData = async (library: JsonRpcProvider) => {
-            setLakePrice(await useLakeUsdtPrice(library));
-        };
+        const interval = setInterval(() => {
+            if (library) {
+                updatePrice(library).catch(console.error);
+            }
+        }, REFRESH_LAKE_PRICE_INTERVAL);
+        return () => clearInterval(interval);
+    }, []);
 
+    useEffect(() => {
         if (library) {
-            fetchData(library).catch(console.error);
-            setInterval(() => {
-                fetchData(library).catch(console.error);
-            }, REFRESH_LAKE_PRICE_INTERVAL);
+            updatePrice(library).catch(console.error);
         }
     }, [library]);
 
@@ -100,6 +102,10 @@ export const AccountOverview = () => {
         setTotalUnlocked(unlocked);
         setTotalAllocated(allocated);
     }, [vestingSchedules]);
+
+    const updatePrice = async (library: JsonRpcProvider) => {
+        setLakePrice(await useLakeUsdtPrice(library));
+    };
 
     return (
         <div className="w-full h-full bg-black-800 rounded-[42px] inset-shadow relative">
