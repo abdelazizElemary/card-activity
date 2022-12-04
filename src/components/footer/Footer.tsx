@@ -1,6 +1,5 @@
 import { Button } from '../button/Button';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { Link } from 'react-router-dom';
 import { formatAddress } from '../../utils/formatAddress';
 import logo from '../../assets/icons/lake-logo.svg';
 import telegramIcon from '../../assets/icons/telegram-icon.svg';
@@ -54,22 +53,8 @@ export const Footer = () => {
             </div>
             <div className="flex flex-col items-center tracking-[.1em] text-xl font-kanit-light color-gray-gradient text-shadow">
                 <span className="my-2 cursor-pointer">CONTACT US</span>
-                <Link
-                    className="my-2 cursor-pointer"
-                    to="/privacy-policy"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    PRIVACY POLICY
-                </Link>
-                <Link
-                    className="my-2 cursor-pointer"
-                    to="/terms-and-conditions"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    DISCLAIMER
-                </Link>
+                <span className="my-2 cursor-pointer">PRIVACY POLICY</span>
+                <span className="my-2 cursor-pointer">DISCLAIMER</span>
             </div>
         </div>
     );
