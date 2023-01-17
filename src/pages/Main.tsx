@@ -32,7 +32,7 @@ export const Main = () => {
             {isDisclaimerAccepted && (
                 <Page>
                     <div className="w-full flex flex-col items-center justify-center">
-                        <div className="w-full h-full lg:h-[670px] flex flex-col lg:flex-row justify-between py-6">
+                        <div className="w-full h-full lg:h-[670px] flex flex-col lg:flex-row justify-between mt-4 lg:mt-0 lg:py-6">
                             <div className="w-full lg:w-[66%]">
                                 <AccountOverview />
                             </div>
@@ -40,13 +40,13 @@ export const Main = () => {
                                 <Stats />
                             </div>
                         </div>
-                        <div className="w-full h-[670px] py-6">
+                        <div className="hidden lg:block w-full h-[670px] py-6">
                             <Widgets />
                         </div>
-                        <div className="w-full h-[630px] py-6">
+                        <div className="w-full h-auto lg:h-[630px] mt-4 lg:mt-0 lg:py-6">
                             <VestingOverview />
                         </div>
-                        <div className="w-full h-[260px] pt-6 pb-10">
+                        <div className="w-full h-[260px] mt-4 lg:pt-6 mb-6 lg:pb-10">
                             <Footer />
                         </div>
                     </div>

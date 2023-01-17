@@ -43,13 +43,13 @@ export const VestingOverview = () => {
 
     return (
         <div className="w-full h-full flex justify-between">
-            <div className="w-[77%]">
+            <div className="hidden lg:block w-[77%]">
                 <VestingSchedule
                     data={vestingSchedules}
                     isLoading={isLoading}
                 />
             </div>
-            <div className="w-[21%]">
+            <div className="w-full lg:w-[21%]">
                 <Withdraw
                     data={vestingSchedules}
                     isLoading={isLoading}
