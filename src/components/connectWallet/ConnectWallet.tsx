@@ -9,7 +9,7 @@ export const ConnectWallet = () => {
         await activateProvider();
     };
     return (
-        <div className="w-full h-full absolute flex items-center justify-center top-0">
+        <div className="w-full h-full absolute flex items-center justify-center top-0 left-0">
             <GradientButtonWithIcon
                 size="medium"
                 disabled={false}
