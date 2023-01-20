@@ -15,14 +15,14 @@ interface Props {
 export const VestingSchedule = ({ data, isLoading }: Props) => {
     const { account } = useContext(WalletConnectContext);
     return (
-        <div className="w-full h-full bg-black-700 rounded-[30px] inset-shadow relative">
+        <div className="w-full h-full min-h-[80vh] lg:min-h-0 bg-black-700 rounded-[30px] inset-shadow relative">
             <div
                 className={`w-full h-full flex flex-col items-center px-4 ${
                     account ? '' : 'blur-sm pointer-events-none'
                 }`}
             >
                 <div className="w-full flex justify-start py-12 lg:px-6">
-                    <div className="text-center lg:text-start font-kanit-medium color-gray-gradient text-shadow text-xl tracking-[.12em]">
+                    <div className="w-full lg:w-auto text-center lg:text-start font-kanit-medium color-gray-gradient text-shadow text-xl tracking-[.12em]">
                         YOUR $LAKE VESTING SCHEDULE
                     </div>
                 </div>

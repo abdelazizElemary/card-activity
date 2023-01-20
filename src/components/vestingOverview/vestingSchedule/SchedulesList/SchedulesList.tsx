@@ -15,7 +15,7 @@ export const SchedulesList = ({ data }: Props) => {
                     ))}
                 </>
             ) : (
-                <div className="w-full flex justify-center items-center mt-36">
+                <div className="w-full flex justify-center items-center mt-40">
                     NO VESTING SCHEDULES TO SHOW
                 </div>
             )}

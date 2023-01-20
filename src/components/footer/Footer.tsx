@@ -31,7 +31,7 @@ export const Footer = () => {
                     ></Button>
                 </CopyToClipboard>
             </div>
-            <div className="w-[60%] lg:w-auto h-full max-h-[160px] flex flex-wrap lg:flex-nowrap justify-center content-around lg:items-center">
+            <div className="w-[60%] lg:w-auto h-full max-h-[180px] flex flex-wrap lg:flex-nowrap justify-center content-around lg:items-center">
                 <img
                     className="w-[3rem] h-[3rem] mx-4 cursor-pointer hover:scale-105 transition-transform duration-300"
                     src={youtubeIcon}
